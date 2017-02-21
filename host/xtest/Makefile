@@ -136,7 +136,6 @@ CFLAGS += -Wall -Wcast-align -Werror \
 endif
 
 CFLAGS += -g3
-CFLAGS += -Wno-unused-function
 
 LDFLAGS += -L$(OPTEE_CLIENT_EXPORT)/lib -lteec
 LDFLAGS += -lpthread -lm

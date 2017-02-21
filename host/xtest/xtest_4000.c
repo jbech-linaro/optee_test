@@ -42,7 +42,6 @@ static void xtest_tee_test_4009(ADBG_Case_t *Case_p);
 static void xtest_tee_test_4010(ADBG_Case_t *Case_p);
 static void xtest_tee_test_4011(ADBG_Case_t *Case_p);
 
-#if 0
 ADBG_CASE_DEFINE(regression, 4001, xtest_tee_test_4001,
 		"Test TEE Internal API hash operations");
 ADBG_CASE_DEFINE(regression, 4002, xtest_tee_test_4002,
@@ -55,10 +54,8 @@ ADBG_CASE_DEFINE(regression, 4004, xtest_tee_test_4004,
 		"Test TEE Internal API get random");
 ADBG_CASE_DEFINE(regression, 4005, xtest_tee_test_4005,
 		"Test TEE Internal API Authenticated Encryption operations");
-#endif
 ADBG_CASE_DEFINE(regression, 4006, xtest_tee_test_4006,
 		"Test TEE Internal API Asymmetric Cipher operations");
-#if 0
 ADBG_CASE_DEFINE(regression, 4007, xtest_tee_test_4007,
 		"Test TEE Internal API Generate key");
 ADBG_CASE_DEFINE(regression, 4008, xtest_tee_test_4008,
@@ -69,7 +66,6 @@ ADBG_CASE_DEFINE(regression, 4010, xtest_tee_test_4010,
 		"Test TEE Internal API create transient object (negative)");
 ADBG_CASE_DEFINE(regression, 4011, xtest_tee_test_4011,
 		"Test TEE Internal API Bleichenbacher attack (negative)");
-#endif
 
 static TEEC_Result ta_crypt_cmd_random_number_generate(ADBG_Case_t *c,
 						       TEEC_Session *s,
@@ -3743,7 +3739,7 @@ static void xtest_tee_test_4006(ADBG_Case_t *c)
 	size_t max_key_size;
 	size_t num_key_attrs;
 	uint32_t ret_orig;
-	size_t n, m;
+	size_t n;
 	uint32_t curve;
 	uint32_t hash_algo;
 
@@ -3758,10 +3754,6 @@ static void xtest_tee_test_4006(ADBG_Case_t *c)
 		if (tv->level > level)
 			continue;
 
-		if (n != 83)
-			continue;
-
-		for (m = 0; m < 20; m++) {
 		Do_ADBG_BeginSubCase(c, "Asym Crypto case %d algo 0x%x line %d",
 				     (int)n, (unsigned int)tv->algo,
 				     (int)tv->line);
@@ -4209,9 +4201,7 @@ static void xtest_tee_test_4006(ADBG_Case_t *c)
 	}
 out:
 	TEEC_CloseSession(&session);
-	}
 }
-
 
 #define KEY_ATTR(x, y) { #x, (x), y }
 
