@@ -12,8 +12,6 @@ if(NOT THREADS_FOUND)
 	message(FATAL_ERROR "Threads not found")
 endif()
 
-#find_package(OpenSSL REQUIRED)
-
 include(GNUInstallDirs)
 
 ################################################################################
@@ -111,23 +109,17 @@ target_compile_definitions (${PROJECT_NAME}
 # Public and private header and library dependencies
 ################################################################################
 # FIXME: Should use target_include_directories below instead
-
 include_directories(
-	../optee_client/libteec/include/
 	../optee_client/public/
 	../optee_os/lib/libutee/include
 	../optee_os/lib/libutils/ext/include/
 	../optee_os/core/include/
 	../optee_os/core/include/tee
-	#../optee_os/out/arm/export-ta_arm32/include
 )
 
 target_include_directories(${PROJECT_NAME}
 	PRIVATE host/xtest
 	PRIVATE host/xtest/adbg/include
-	PRIVATE host/xtest/adbg/src
-	PRIVATE host/xtest/include/uapi/linux
-	PRIVATE host/xtest/nist
 	PRIVATE host/xtest/xml/include
 )
 
@@ -138,7 +130,6 @@ target_link_libraries (${PROJECT_NAME}
 	PRIVATE teec
 	PRIVATE m
 )
-
 
 ################################################################################
 # Install targets
