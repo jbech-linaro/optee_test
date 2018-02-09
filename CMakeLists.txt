@@ -1,7 +1,6 @@
 cmake_minimum_required (VERSION 3.4)
 project (xtest C)
 
-# https://cmake.org/Wiki/CMake_Useful_Variables
 set (CMAKE_TOOLCHAIN_FILE CMakeToolchain.txt)
 
 ################################################################################
@@ -11,6 +10,12 @@ find_package(Threads REQUIRED)
 if(NOT THREADS_FOUND)
 	message(FATAL_ERROR "Threads not found")
 endif()
+
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
 
 include(GNUInstallDirs)
 
@@ -30,12 +35,6 @@ add_compile_options (
 	-Wwrite-strings -Werror -fPIC
  	-Wno-missing-field-initializers
 )
-
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
 
 ################################################################################
 # Add sub directories
@@ -57,16 +56,10 @@ set (SRC
 	host/xtest/regression_6000.c
 	host/xtest/regression_7000.c
 	host/xtest/regression_8000.c
-	host/xtest/regression_9000.c
 	host/xtest/sha_perf.c
 	host/xtest/xtest_helpers.c
 	host/xtest/xtest_main.c
 	host/xtest/xtest_test.c
-)
-
-# FIXME: Remove hard links and take care of libcrypto
-LINK_DIRECTORIES (
-	../optee_client/out/export/lib
 )
 
 ################################################################################
@@ -108,27 +101,18 @@ target_compile_definitions (${PROJECT_NAME}
 ################################################################################
 # Public and private header and library dependencies
 ################################################################################
-# FIXME: Should use target_include_directories below instead
-include_directories(
-	../optee_client/public/
-	../optee_os/lib/libutee/include
-	../optee_os/lib/libutils/ext/include/
-	../optee_os/core/include/
-	../optee_os/core/include/tee
-)
-
 target_include_directories(${PROJECT_NAME}
 	PRIVATE host/xtest
 	PRIVATE host/xtest/adbg/include
 	PRIVATE host/xtest/xml/include
 )
 
-# FIXME: Should just point to optee-client and optee-os here
 target_link_libraries (${PROJECT_NAME}
-	PRIVATE xtest-ta-headers
-	PRIVATE pthread
-	PRIVATE teec
 	PRIVATE m
+	PRIVATE teec
+	PRIVATE xtest-ta-headers
+	PRIVATE optee-client-headers
+	PRIVATE optee-os-headers
 )
 
 ################################################################################

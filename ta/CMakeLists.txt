@@ -31,5 +31,5 @@ target_include_directories(${PROJECT_NAME}
 ################################################################################
 # Install targets
 ################################################################################
-install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-	   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+#install (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+#DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
