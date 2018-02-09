@@ -1,3 +1,24 @@
+cmake_minimum_required (VERSION 3.4)
+project (xtest-ta)
+
+################################################################################
+# Packages
+################################################################################
+find_package(Threads REQUIRED)
+if(NOT THREADS_FOUND)
+	message(FATAL_ERROR "Threads not found")
+endif()
+
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
+
+include(GNUInstallDirs)
+
+add_subdirectory(crypt)
+
 project (xtest-ta-headers)
 
 ################################################################################
