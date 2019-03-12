@@ -2,6 +2,13 @@ project (xtest C)
 
 include(${OPTEE_TEST_SDK}/host_include/conf.cmake)
 
+
+################################################################################
+# Flags
+################################################################################
+option (CFG_TA_MBEDTLS "TA using mbed TLS" ON)
+option (CFG_TA_MBEDTLS_MPI "TA using mbed TLS MPI" ON)
+
 ################################################################################
 # Packages
 ################################################################################
@@ -10,10 +17,12 @@ if(NOT THREADS_FOUND)
 	message(FATAL_ERROR "Threads not found")
 endif()
 
-find_package(OpenSSL)
-if(OPENSSL_FOUND)
-	add_compile_options(-DOPENSSL_FOUND=1)
-	set (OPENSSL_PRIVATE_LINK crypto)
+if (CFG_TA_MBEDTLS)
+	find_package(OpenSSL)
+	if(OPENSSL_FOUND)
+		add_compile_options(-DOPENSSL_FOUND=1)
+		set (OPENSSL_PRIVATE_LINK crypto)
+	endif()
 endif()
 
 include(GNUInstallDirs)
