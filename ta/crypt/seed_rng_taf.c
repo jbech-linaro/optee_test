@@ -10,6 +10,7 @@
 
 #define TA_DERIVED_KEY_MIN_SIZE 16
 #define TA_DERIVED_KEY_MAX_SIZE 32
+#define TA_DERIVED_EXTRA_DATA_MAX_SIZE 1024
 
 static const TEE_UUID system_uuid = PTA_SYSTEM_UUID;
 
@@ -165,8 +166,18 @@ TEE_Result derive_ta_unique_key_test(uint32_t param_types,
 	memset(key2, 0, sizeof(key2));
 
 	/*
-	 * Testing limits.
+	 * Testing limits for extra data size (if this would success, then we
+	 * would overwrite the buffer extra_key_data also.
 	 */
+	res = derive_unique_key(session, key1, sizeof(key1), extra_key_data,
+				TA_DERIVED_EXTRA_DATA_MAX_SIZE + 1);
+	/* This shall fail */
+	if (res == TEE_SUCCESS)
+		res_final = TEE_ERROR_GENERIC;
+
+	memset(key1, 0, sizeof(key1));
+
+	/* Testing limits. */
 	for (i = 0; i < sizeof(big_key); i++) {
 		uint8_t *extra = NULL;
 		uint8_t extra_size = 0;
