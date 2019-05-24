@@ -611,4 +611,7 @@
  */
 #define TA_CRYPT_CMD_ARITH_COMPUTE_FMM		76
 
+/* system pTA is used for deriving device and TA unique keys. */
+#define TA_CRYPT_CMD_DERIVE_TA_UNIQUE_KEY	77
+
 #endif /*TA_CRYPT_H */
