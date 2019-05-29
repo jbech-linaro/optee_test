@@ -235,6 +235,8 @@ TEE_Result TA_InvokeCommandEntryPoint(void *pSessionContext,
 		return seed_rng_pool(nParamTypes, pParams);
 	case TA_CRYPT_CMD_DERIVE_TA_UNIQUE_KEY:
 		return derive_ta_unique_key_test(nParamTypes, pParams);
+	case TA_CRYPT_CMD_DERIVE_TA_UNIQUE_KEY_SHM:
+		return derive_ta_unique_key_test_shm(nParamTypes, pParams);
 #endif
 	case TA_CRYPT_CMD_ARITH_NEW_VAR:
 		return ta_entry_arith_new_var(nParamTypes, pParams);

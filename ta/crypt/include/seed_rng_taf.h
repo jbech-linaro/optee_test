@@ -11,4 +11,6 @@
 TEE_Result seed_rng_pool(uint32_t param_types, TEE_Param params[4]);
 TEE_Result derive_ta_unique_key_test(uint32_t param_types,
 				     TEE_Param params[4]);
+TEE_Result derive_ta_unique_key_test_shm(uint32_t param_types,
+					 TEE_Param params[4]);
 #endif /* SEED_RNG_TAF_H */

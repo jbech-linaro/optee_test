@@ -100,6 +100,7 @@ TEE_Result derive_ta_unique_key_test(uint32_t param_types,
 
 	res = TEE_OpenTASession(&system_uuid, 0, 0, NULL, &session,
 				&ret_origin);
+
 	if (res != TEE_SUCCESS) {
 		res_final = TEE_ERROR_GENERIC;
 		goto err;
@@ -220,4 +221,36 @@ err:
 	TEE_CloseTASession(session);
 
 	return res_final;
+}
+
+TEE_Result derive_ta_unique_key_test_shm(uint32_t param_types,
+					 TEE_Param params[4])
+{
+	TEE_Result res = TEE_ERROR_GENERIC;
+	TEE_TASessionHandle session = TEE_HANDLE_NULL;
+	uint32_t ret_origin = 0;
+
+	if (param_types != TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
+					   TEE_PARAM_TYPE_MEMREF_OUTPUT,
+					   TEE_PARAM_TYPE_NONE,
+					   TEE_PARAM_TYPE_NONE))
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	res = TEE_OpenTASession(&system_uuid, 0, 0, NULL, &session,
+				&ret_origin);
+
+	if (res != TEE_SUCCESS)
+		goto err;
+
+	/*
+	 * Testing for unsuccessful calls to the pTA. They should be
+	 * unsuccessful since we are using an out buffer coming from normal
+	 * world.
+	 */
+	res = TEE_InvokeTACommand(session, 0, PTA_SYSTEM_DERIVE_TA_UNIQUE_KEY,
+				  param_types, params, &ret_origin);
+err:
+	TEE_CloseTASession(session);
+
+	return res;
 }
