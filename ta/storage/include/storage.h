@@ -60,5 +60,6 @@ TEE_Result ta_storage_cmd_free_obj(uint32_t param_types, TEE_Param params[4]);
 TEE_Result ta_storage_cmd_reset_obj(uint32_t param_types, TEE_Param params[4]);
 TEE_Result ta_storage_cmd_get_obj_info(uint32_t param_types,
 					    TEE_Param params[4]);
+TEE_Result ta_storage_cmd_enum_single_start(uint32_t param_types);
 
 #endif /*STORAGE_H */

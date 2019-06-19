@@ -600,3 +600,92 @@ TEE_Result ta_storage_cmd_get_obj_info(uint32_t param_types,
 
 	return res;
 }
+
+#define TA_STORAGE_ENUM_FLAGS	(TEE_DATA_FLAG_ACCESS_READ  | \
+				 TEE_DATA_FLAG_ACCESS_WRITE | \
+				 TEE_DATA_FLAG_ACCESS_WRITE_META)
+
+TEE_Result ta_storage_cmd_enum_single_start(uint32_t param_types)
+{
+	TEE_Result res = TEE_ERROR_GENERIC;
+	TEE_ObjectInfo object_info = { };
+	TEE_ObjectHandle object = TEE_HANDLE_NULL;
+	TEE_ObjectEnumHandle object_enumerator = TEE_HANDLE_NULL;
+	uint64_t object_id = 0;
+	uint32_t object_id_len = 0;
+	size_t object_id_name = 0;
+
+	ASSERT_PARAM_TYPE(TEE_PARAM_TYPES
+			  (TEE_PARAM_TYPE_NONE, TEE_PARAM_TYPE_NONE,
+			   TEE_PARAM_TYPE_NONE,
+			   TEE_PARAM_TYPE_NONE));
+
+	for(object_id_name = 0; object_id_name < 5; object_id_name++) {
+		res = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE,
+						 (void *)&object_id_name,
+						 sizeof(object_id_name),
+						 TA_STORAGE_ENUM_FLAGS, NULL,
+						 0, 0, &object);
+		DMSG("Created object 0x%x", object_id_name);
+		TEE_CloseObject(object);
+	}
+
+	res = TEE_AllocatePersistentObjectEnumerator(&object_enumerator);
+	/*
+	 * Without an enumerator it's not easy to clean up the created files,
+	 * if we get an error here we will leave stray files in storage.
+	 *
+	 * FIXME: It's doable, just require a bit more coding, keep it as this
+	 * for now.
+	 */
+	if (res != TEE_SUCCESS)
+		return res;
+
+	res = TEE_StartPersistentObjectEnumerator(object_enumerator,
+						     TEE_STORAGE_PRIVATE);
+	if (res == TEE_ERROR_ITEM_NOT_FOUND) {
+		DMSG("No objects");
+		goto err;
+	}
+
+	do {
+		res = TEE_GetNextPersistentObject(object_enumerator,
+						     &object_info,
+						     &object_id,
+						     &object_id_len);
+		if (res != TEE_SUCCESS)
+			goto err;
+
+		res = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE,
+						  &object_id,
+						  object_id_len,
+						  TA_STORAGE_ENUM_FLAGS,
+						  &object);
+		if (res != TEE_SUCCESS)
+			goto err;
+
+		EMSG("Deleting object 0x%llx", object_id);
+		TEE_CloseAndDeletePersistentObject1(object);
+
+		object = TEE_HANDLE_NULL;
+		/*
+		 * Re-use this, so we can determine whether the test case went
+		 * OK or not.
+		 */
+		object_id_name++;
+	} while (res == TEE_SUCCESS);
+
+err:
+	if (object_enumerator)
+		TEE_FreePersistentObjectEnumerator(object_enumerator);
+
+	/*
+	 * When the do/while loop exits we should have deleted all files and we
+	 * should get a TEE_ERROR_ITEM_NOT_FOUND from the final
+	 * TEE_GetNextPersistentObject(). If all previous calls went fine, then
+	 * the object_id_name should have been increment in every loop and we
+	 * shall end up with the number 10.
+	 */
+	return res == TEE_ERROR_ITEM_NOT_FOUND && object_id_name == 10 ?
+		TEE_SUCCESS : TEE_ERROR_GENERIC;
+}
