@@ -683,16 +683,49 @@ exit:
 	TEEC_CloseSession(&sess);
 }
 
-
-static TEEC_Result enumerator_single_start(TEEC_Session *sess)
+static TEEC_Result enumerator_single_start(TEEC_Session *sess,
+					   uint32_t storage_id)
 {
 	TEEC_Operation op = TEEC_OPERATION_INITIALIZER;
-	uint32_t org = 0;
+	uint32_t org = TEE_ORIGIN_API;
 
-	op.paramTypes = TEEC_PARAM_TYPES(TEEC_NONE, TEEC_NONE,
+	op.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT, TEEC_NONE,
 					 TEEC_NONE, TEEC_NONE);
 
-	return TEEC_InvokeCommand(sess, TA_STORAGE_CMD_ENUM_SINGLE_START, &op, &org);
+	op.params[0].value.a = storage_id;
+
+	return TEEC_InvokeCommand(sess, TA_STORAGE_CMD_ENUM_SINGLE_START, &op,
+				  &org);
+}
+
+static TEEC_Result enumerator_multiple_start(TEEC_Session *sess,
+					     uint32_t storage_id)
+{
+	TEEC_Operation op = TEEC_OPERATION_INITIALIZER;
+	uint32_t org = TEE_ORIGIN_API;
+
+	op.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT, TEEC_NONE,
+					 TEEC_NONE, TEEC_NONE);
+
+	op.params[0].value.a = storage_id;
+
+	return TEEC_InvokeCommand(sess, TA_STORAGE_CMD_ENUM_MULTIPLE_START,
+				  &op, &org);
+}
+
+static TEEC_Result enumerator_start_reset(TEEC_Session *sess,
+					  uint32_t storage_id)
+{
+	TEEC_Operation op = TEEC_OPERATION_INITIALIZER;
+	uint32_t org = TEE_ORIGIN_API;
+
+	op.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT, TEEC_NONE,
+					 TEEC_NONE, TEEC_NONE);
+
+	op.params[0].value.a = storage_id;
+
+	return TEEC_InvokeCommand(sess, TA_STORAGE_CMD_ENUM_START_RESET, &op,
+				  &org);
 }
 
 #ifdef WITH_GP_TESTS
@@ -2243,7 +2276,7 @@ ADBG_CASE_DEFINE(regression, 6020, xtest_tee_test_6020,
 		 "Object IDs in SHM (negative)");
 
 static void xtest_tee_test_6021_single(ADBG_Case_t *c,
-				       uint32_t storage_id __unused)
+				       uint32_t storage_id)
 {
 	TEEC_Session sess = { };
 	uint32_t orig = 0;
@@ -2253,11 +2286,26 @@ static void xtest_tee_test_6021_single(ADBG_Case_t *c,
 		return;
 
 	/* Test using only a single call to TEE_StartPersistentObjectEnumerator */
-	if (!ADBG_EXPECT_TEEC_SUCCESS(c, enumerator_single_start(&sess)))
+	if (!ADBG_EXPECT_TEEC_SUCCESS(c,
+			      enumerator_single_start(&sess, storage_id)))
+		goto exit;
+
+	/* Test using multiple calls to TEE_StartPersistentObjectEnumerator */
+	if (!ADBG_EXPECT_TEEC_SUCCESS(c,
+			      enumerator_multiple_start(&sess, storage_id)))
+		goto exit;
+
+	/*
+	 * Test using multiple calls where both
+	 * TEE_StartPersistentObjectEnumerator and
+	 * TEE_ResetPersistentObjectEnumerator are used.
+	 */
+	if (!ADBG_EXPECT_TEEC_SUCCESS(c,
+			      enumerator_start_reset(&sess, storage_id)))
 		goto exit;
 exit:
 	TEEC_CloseSession(&sess);
 }
 DEFINE_TEST_MULTIPLE_STORAGE_IDS(xtest_tee_test_6021)
 ADBG_CASE_DEFINE(regression, 6021, xtest_tee_test_6021,
-	"Test TEE Internal API Persistent Object Enumeration Functions with and without reset");
+	"Test TEE Internal API enumeration functions with and without reset");

@@ -139,8 +139,15 @@ TEE_Result TA_InvokeCommandEntryPoint(void *pSessionContext,
 
 	case TA_STORAGE_CMD_GET_OBJ_INFO:
 		return ta_storage_cmd_get_obj_info(nParamTypes, pParams);
+
 	case TA_STORAGE_CMD_ENUM_SINGLE_START:
-		return ta_storage_cmd_enum_single_start(nParamTypes);
+		return ta_storage_cmd_enum_single_start(nParamTypes, pParams);
+
+	case TA_STORAGE_CMD_ENUM_MULTIPLE_START:
+		return ta_storage_cmd_enum_multiple_start(nParamTypes, pParams);
+
+	case TA_STORAGE_CMD_ENUM_START_RESET:
+		return ta_storage_cmd_enum_start_reset(nParamTypes, pParams);
 
 	default:
 		return TEE_ERROR_BAD_PARAMETERS;
